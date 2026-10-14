@@ -1,0 +1,25 @@
+# --- Secretos y credenciales (nunca versionar) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+secrets.*
+*credentials*
+
+# --- Power BI: cache y estado local ---
+**/.pbi/
+*.abf
+
+# --- Python / sistema / editor ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+.vs/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

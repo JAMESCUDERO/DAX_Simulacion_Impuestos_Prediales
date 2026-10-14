@@ -1,0 +1,51 @@
+----------------------------------------
+DIF_NoEdif
+----------------------------------------
+
+DIF_NoEdif = 
+
+VAR valor =
+    [Solar_no_edificado_SIM]
+        - SUM('Planilla Predios Urbanos'[Rubro07 SolarNoEdif])
+
+RETURN
+IF(
+    AND(valor >= -0.01, valor <= 0.01),
+    0,
+    valor
+)
+
+
+
+----------------------------------------
+DIF_TOTAL
+----------------------------------------
+
+DIF_TOTAL = 
+
+VAR valor =
+    [DIF_IP] + [DIF_NoEdif]
+
+RETURN
+IF(
+    AND(valor >= -0.01, valor <= 0.01),
+    0,
+    valor
+)
+
+
+
+----------------------------------------
+ACCION
+----------------------------------------
+
+ACCION =
+IF(
+    [DIF_TOTAL] < -0.01,
+    "DEVOLVER",
+    IF(
+        [DIF_TOTAL] > 0.01,
+        "COBRAR",
+        "NO APLICA"
+    )
+)

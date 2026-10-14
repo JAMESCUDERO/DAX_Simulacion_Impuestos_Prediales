@@ -1,0 +1,94 @@
+----------------------------------------
+TARIFA_IP_SIM
+----------------------------------------
+
+TARIFA_IP_SIM = 
+
+VAR AVA_SOLAR_R1 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar (Después Reproceso)])
+
+VAR AVA_SOLAR_R2 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar])
+
+VAR PAR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Pagado Antes Reproceso]
+    )
+
+VAR AVALUO_SOLAR =
+    IF(PAR = "SI", AVA_SOLAR_R1, AVA_SOLAR_R2)
+
+VAR VM2 =
+    AVALUO_SOLAR / SUM('Planilla Predios Urbanos'[Area Solar])
+
+VAR AVASIM =
+    VM2 * SUM('Planilla Predios Urbanos'[Area Solar (Año Anterior)])
+
+VAR TARI =
+    SUM('Planilla Predios Urbanos'[Rubro01 ImpPredial (Año Anterior)])
+        / (AVASIM + SUM('Planilla Predios Urbanos'[Avalúo Construcción]))
+
+VAR TARIFA_F =
+    IF(
+        TARI < 0.00025,
+        0.00025,
+        IF(TARI > 0.005, 0.005, TARI)
+    )
+
+VAR CATASTRO =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Clasificación Catastro]
+    )
+
+VAR A13 =
+    (
+        SUM('Planilla Predios Urbanos'[Avalúo Construcción (Año Anterior)])
+        * SUM('Planilla Predios Urbanos'[Tarifa (Año Anterior)])
+    )
+        / SUM('Planilla Predios Urbanos'[Avalúo Construcción])
+
+VAR TARIFA_D2 =
+    IF(
+        A13 < 0.00025,
+        0.00025,
+        IF(A13 > 0.005, 0.005, A13)
+    )
+
+VAR ASOL =
+    (
+        SUM('Planilla Predios Urbanos'[Avalúo Solar (Año Anterior)])
+        * SUM('Planilla Predios Urbanos'[Tarifa (Año Anterior)])
+    )
+        / AVALUO_SOLAR
+
+VAR TARIFA_SOL =
+    IF(
+        ASOL < 0.00025,
+        0.00025,
+        IF(ASOL > 0.005, 0.005, ASOL)
+    )
+
+RETURN
+IF(
+    CATASTRO IN { "D2", "D", "D5", "J1", "I1", "E2" },
+    TARIFA_D2,
+    IF(
+        CATASTRO IN { "G1" },
+        TARIFA_D2,
+        IF(
+            CATASTRO = "F2",
+            TARIFA_F,
+            IF(
+                CATASTRO IN { "G2", "J2", "F10" },
+                TARIFA_SOL,
+                IF(
+                    CATASTRO = "F1",
+                    TARIFA_F,
+                    TARIFA_F
+                )
+            )
+        )
+    )
+)

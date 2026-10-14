@@ -1,0 +1,48 @@
+
+----------------------------------------
+Solar_no_edificado_SIM
+----------------------------------------
+
+Solar_no_edificado_SIM = 
+
+VAR AVA_SOLAR_R1 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar (Después Reproceso)])
+
+VAR AVA_SOLAR_R2 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar])
+
+VAR PAR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Pagado Antes Reproceso]
+    )
+
+VAR AVALUO_SOLAR =
+    IF(PAR = "SI", AVA_SOLAR_R1, AVA_SOLAR_R2)
+
+VAR CATASTRO =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Clasificación Catastro]
+    )
+
+VAR AVALUO_TO =
+    SUM('Planilla Predios Urbanos'[Avalúo Construcción]) + AVALUO_SOLAR
+
+VAR IP_2MIL =
+    AVALUO_TO * (2 / 1000)
+
+VAR IP_1MIL =
+    AVALUO_TO * (1 / 1000)
+
+RETURN
+IF(
+    CATASTRO IN { "F2" },
+    IP_2MIL,
+    IF(
+        CATASTRO = "F1",
+        IP_2MIL + IP_1MIL,
+        0
+    )
+)
+

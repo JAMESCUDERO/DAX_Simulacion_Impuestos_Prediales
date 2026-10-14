@@ -1,0 +1,123 @@
+----------------------------------------
+TARIFA_SIM
+----------------------------------------
+
+TARIFA_SIM = 
+
+VAR CAMBIO_AREA_SOLAR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Cambio Area Solar]
+    )
+
+VAR CAMBIO_AVAO_CONST =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Cambio Avalúo Construcción]
+    )
+
+VAR PAR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Pagado Antes Reproceso]
+    )
+
+VAR CAMBIO_CLAS_FINAN =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Cambio Clasificación Financiero]
+    )
+
+VAR CLASIF_FINAN =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Clasificación Financiero]
+    )
+
+VAR CLASIF_CATASTRO =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Clasificación Catastro]
+    )
+
+VAR CLASIF_CATAS_ANTERIOR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Clasificación Catastro (Año Anterior)]
+    )
+
+VAR CAMBIO_AVALUO_SOLAR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Cambio Area Solar]
+    ) = "NO"
+
+VAR CAMBIO_CLASIF_CATASTRO =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Cambio Clasificación Catastro]
+    )
+
+RETURN
+IF(
+    AND(
+        CAMBIO_CLAS_FINAN = "NO",
+        AND(
+            CLASIF_FINAN = "SIN",
+            AND(
+                CAMBIO_CLASIF_CATASTRO = "NO",
+                AND(
+                    CAMBIO_AVAO_CONST = "NO",
+                    CAMBIO_AREA_SOLAR = "NO"
+                )
+            )
+        )
+    ),
+    [TARIFA_IP_SIM],
+    IF(
+        AND(
+            CAMBIO_CLAS_FINAN = "NO",
+            AND(
+                CLASIF_FINAN = "SIN",
+                AND(
+                    CAMBIO_CLASIF_CATASTRO = "NO",
+                    AND(
+                        CAMBIO_AVAO_CONST = "NO",
+                        CAMBIO_AREA_SOLAR = "SI"
+                    )
+                )
+            )
+        ),
+        [TARIFA_IP_SIM],
+        IF(
+            AND(
+                CAMBIO_CLAS_FINAN = "NO",
+                AND(
+                    CLASIF_FINAN = "SIN",
+                    AND(
+                        CAMBIO_CLASIF_CATASTRO = "NO",
+                        AND(
+                            CAMBIO_AVAO_CONST = "SI",
+                            CAMBIO_AREA_SOLAR = "NO"
+                        )
+                    )
+                )
+            ),
+            [TARIFA_IP_SIM_VARCONSTRU2],
+            IF(
+                AND(
+                    CAMBIO_CLAS_FINAN = "NO",
+                    AND(
+                        CLASIF_FINAN = "SIN",
+                        AND(
+                            CLASIF_CATAS_ANTERIOR = "A21",
+                            CLASIF_CATASTRO <> "A21"
+                        )
+                    )
+                ),
+                [TARIFA_IP_SIM_A21],
+                [TARIFA_IP_SIM]
+            )
+        )
+    )
+)

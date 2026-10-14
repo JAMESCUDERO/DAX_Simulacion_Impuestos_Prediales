@@ -1,0 +1,112 @@
+========================================================================
+MEDIDAS AUXILIARES (RECONSTRUIDAS PARA LA DEMO)
+========================================================================
+Las medidas originales de esta carpeta hacen referencia a [IP_SIM],
+[IP_SIM_VARCONSTRU2], [IP_SIM_A21] y [DIF_IP], que NO forman parte de los
+archivos originales del repositorio.
+
+Para que el modelo de ejemplo se pueda ejecutar de punta a punta con los datos
+ficticios, se reconstruyeron por analogia con las medidas de tarifa:
+  impuesto simulado = tarifa simulada x (avaluo construccion + avaluo solar)
+
+Son una reconstruccion, no el codigo original. La replica en Python
+(src/logica_dax.py) implementa exactamente estas mismas definiciones.
+Todos los datos del repositorio son FICTICIOS.
+
+Crear en este orden: IP_SIM, IP_SIM_VARCONSTRU2, IP_SIM_A21, DIF_IP.
+
+
+----------------------------------------
+IP_SIM
+----------------------------------------
+
+IP_SIM =
+
+VAR AVA_SOLAR_R1 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar (Después Reproceso)])
+
+VAR AVA_SOLAR_R2 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar])
+
+VAR PAR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Pagado Antes Reproceso]
+    )
+
+VAR AVALUO_SOLAR =
+    IF(PAR = "SI", AVA_SOLAR_R1, AVA_SOLAR_R2)
+
+RETURN
+[TARIFA_IP_SIM]
+    * (SUM('Planilla Predios Urbanos'[Avalúo Construcción]) + AVALUO_SOLAR)
+
+
+----------------------------------------
+IP_SIM_VARCONSTRU2
+----------------------------------------
+
+IP_SIM_VARCONSTRU2 =
+
+VAR AVA_SOLAR_R1 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar (Después Reproceso)])
+
+VAR AVA_SOLAR_R2 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar])
+
+VAR PAR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Pagado Antes Reproceso]
+    )
+
+VAR AVALUO_SOLAR =
+    IF(PAR = "SI", AVA_SOLAR_R1, AVA_SOLAR_R2)
+
+RETURN
+[TARIFA_IP_SIM_VARCONSTRU2]
+    * (SUM('Planilla Predios Urbanos'[Avalúo Construcción (Año Anterior)]) + AVALUO_SOLAR)
+
+
+----------------------------------------
+IP_SIM_A21
+----------------------------------------
+
+IP_SIM_A21 =
+
+VAR AVA_SOLAR_R1 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar (Después Reproceso)])
+
+VAR AVA_SOLAR_R2 =
+    SUM('Planilla Predios Urbanos'[Avalúo Solar])
+
+VAR PAR =
+    CONCATENATEX(
+        'Planilla Predios Urbanos',
+        'Planilla Predios Urbanos'[Pagado Antes Reproceso]
+    )
+
+VAR AVALUO_SOLAR =
+    IF(PAR = "SI", AVA_SOLAR_R1, AVA_SOLAR_R2)
+
+VAR AVALUO_TOTAL_ANTERIOR =
+    SUM('Planilla Predios Urbanos'[Avalúo Construcción (Año Anterior)])
+    + SUM('Planilla Predios Urbanos'[Avalúo Solar (Año Anterior)])
+
+VAR AVALUO_SIMULADO =
+    SUM('Planilla Predios Urbanos'[Avalúo Construcción (Año Anterior)])
+    + AVALUO_SOLAR
+
+VAR AVALUO_SIM_TOTAL =
+    IF(PAR = "SI", AVALUO_SIMULADO, AVALUO_TOTAL_ANTERIOR)
+
+RETURN
+[TARIFA_IP_SIM_A21] * AVALUO_SIM_TOTAL
+
+
+----------------------------------------
+DIF_IP
+----------------------------------------
+
+DIF_IP =
+[IMPUESTO PREDIAL] - SUM('Planilla Predios Urbanos'[Rubro01 ImpPredial])
